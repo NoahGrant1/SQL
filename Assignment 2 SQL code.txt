@@ -1,0 +1,256 @@
+--Assignment 2 SQL code 
+----------------------------------------------------------------
+
+--SECTION 1
+
+--additional 8 (A)
+
+CREATE TABLE university (
+studentID numeric(10),
+Student_fName varchar(40),
+Sstudent_lName varchar(40),
+courseNum numeric (6), 
+staffID numeric (10), 
+staff_fName varchar(40), 
+staff_lname varchar(40), 
+);
+
+
+--additional 8 (Y)
+--question (A)
+SELECT P_DESCRIPT, P_PRICE, V_NAME
+FROM PRODUCT P, VENDOR V
+WHERE (P.V_CODE = V.V_CODE)
+ORDER BY P_DESCRIPT ASC, V_NAME ASC; 
+
+--question(B)
+SELECT DISTINCT P_DESCRIPT AS Name
+FROM PRODUCT P, CUSTOMER C, CUS_ORDER CO, ORDER_DETAIL OD
+--JOIN (V.V_CODE = P.V_CODE)
+WHERE CUS_LNAME = 'Wang' AND CUS_FNAME = 'Phan'
+
+
+--question (C)
+SELECT DISTINCT CO.ORDER_CODE, CUS_LNAME, CUS_FNAME, P_PRICE
+FROM ORDER_DETAIL OD, CUSTOMER C, PRODUCT P, CUS_ORDER CO
+WHERE (OD.PRODUCT_CODE = P.P_CODE) AND (C.CUS_CODE = CO.CUS_CODE)
+      AND (CO.ORDER_CODE = OD.ORDER_CODE) 
+
+
+--additional 10 (B)
+
+SELECT O.ownerid, O.firstName, O.lastName, COUNT (PetId) AS numOfPets  
+FROM Owner O INNER JOIN PetAndOwner POA ON (O.ownerId = POA.ownerId)
+GROUP BY O.ownerid, O.firstName, O.lastname
+HAVING COUNT (POA.petId) > 1;
+
+
+
+
+--aditional 11 (B) 
+
+SELECT DISTINCT O.ownerId, firstName, lastName, petName 
+FROM  Pet P  INNER JOIN  PetAndOwner POA ON (P.petId = POA.petId)
+right outer join
+      Owner o ON (POA.ownerId = o.ownerid)
+
+
+---------------------------------------------------------------------
+
+SECTION 2 
+
+--beauty salon DB 
+
+CREATE TABLE Staff (
+staffNo numeric(6) PRIMARY KEY, 
+fName varchar(50), 
+lName varchar(50),
+PhoneNo varchar(10),
+Email varchar (40), 
+timeRate int, 
+expertiseLevel varchar(4) CHECK (expertiseLevel = 'Item' OR expertiseLevel = 'Time' OR expertiseLevel = NULL),
+staffType varchar (20), 
+);
+
+CREATE TABLE Client (
+clientNo numeric(6) PRIMARY KEY, 
+fName varchar(50),
+lName varchar(50),
+PhoneNo varchar(10),
+Email varchar(40), 
+);
+
+CREATE TABLE Services (
+serviceID numeric (6) PRIMARY KEY,
+serviceName varchar(30), 
+);
+
+CREATE TABLE Appointments(
+appointmentNo numeric(10) PRIMARY KEY, 
+bookingStaff numeric(6)  REFERENCES Staff, --staffNo
+therapist numeric(6)  REFERENCES Staff,  --staffNo
+clientNo numeric(6) REFERENCES Client, 
+serviceID Numeric(6) REFERENCES Services,
+checkinTime smalldateTime, 
+checkoutTime smalldateTime,
+fName varchar (50) DEFAULT Null, 
+lName varchar (50) DEFAULT Null, 
+phoneNumber varchar(10) DEFAULT Null, 
+sessionCost money, --derived 
+);
+
+
+CREATE TABLE Avaliability (
+slotNo numeric(6) PRIMARY KEY,
+staffNo numeric(6) REFERENCES Staff, 
+appointmentNo numeric(10) REFERENCES Appointments, 
+appointmentTime smalldateTime, 
+);
+
+CREATE TABLE timeBased (
+ServiceID numeric(6),
+hourlyRate money, 
+halfHourlyRate money,
+);
+
+CREATE TABLE itemBased (
+ServiceID numeric(6), 
+hourlyRate money, 
+halfHourlyRate money, 
+);
+
+CREATE TABLE staffServices (
+staffNo numeric(6) REFERENCES Staff, 
+service numeric(6) REFERENCES Services, 
+);
+----------------------------------------------------------------------------------
+--code to enter data into the database 
+
+INSERT INTO Staff VALUES
+
+(1, 'Carol', 'Einstein', 0424552331, 'Cein@yahu.com', 1.04, NULL, 'receptionist'),
+(2, 'Noaveed', 'Tarin', 0331221884, 'Ntarin@gmail.com', 1.22, 'item', 'therapist'),
+(3, 'Noah', 'Grant', 0131221234, 'NG@gmail.com', 1.02,'time', 'therapist'),
+(4, 'Yannah', 'Shennyl', 04241221884, 'YShennyl@jmail.com', 1.33, NULL, 'Manager' ),
+(5, 'John', 'Smith', 0402776891, 'JSmith@gmail.com', 1.12, 'item', 'therapist'),
+(6, 'Albert', 'Stone', 0422775891, 'AS@gmail.com', 1.02, 'time', 'therapist'),
+(7, 'Emma', 'Rock', 042476441, 'EmmR@gmail.com', 1.44, 'item', 'therapist'),
+(8, 'Jona', 'Anniston', 040271111, 'Jonamith@gmail.com', 1.32, 'time', 'therapist'),
+(9, 'Linda', 'Woo', 0402332131, 'Lindawoo@gmail.com', 1.18, 'time', 'therapist'),
+(10, 'Fern', 'Jane', 0402663882, 'FJh@gmail.com', 1.56, 'item', 'therapist');
+
+
+INSERT INTO Client VALUES
+(1, 'Jordana', 'Brewn', 0455878362, 'Jordana@yahoo.com'), 
+(2, 'Linx', 'Conrow', 0425858112, 'LinxCon@yahoo.com'),
+(3, 'lynton', 'Dove', 0402331456, 'LyntonDove@gmail.com'),
+(4, 'Hannah', 'Monty', 0424331224, 'HannahMonty@yahoo.com'),
+(5, 'Mikaela', 'Jordna', 0411875362, 'MJ@Messenger.com'),
+(6, 'Pepito', 'Manaloto', 0424198554, 'Pits@yahoo.com'),
+(7, 'Robert', 'Uppy', 04993223224, 'Metalman@yahoo.com'),
+(8, 'Nadine', 'Lust', 0414322224, 'NL@yahoo.com'),
+(9, 'Kid', 'Abana', 0422311932, 'k24@yahoo.com'),
+(10, 'Jin', 'Sharp', 0392993012, 'j@yahoo.com');
+
+
+INSERT INTO Services VALUES
+(1, 'Manicure'),
+(2, 'Pedicure'),
+(3, 'Waxing'),
+(4, 'Threading'),
+(5, 'Facials'),
+(6, 'Massage');
+
+
+INSERT INTO Appointments VALUES
+--appointmentNO, staffNo, ClientNO, serviceID, ...,serviceCost 
+(1, 1, 2, 5, 6, '2017-04-07 05:30', '2017-04-07 06:30', NULL, NULL, NULL, $73.20),
+(2, 2, 8, 4, 5, '2019-06-03 01:30', '2019-06-03 02:30', NULL, NULL, NULL, $26.40),
+(3, 3,  5, 3, 4, '2005-07-03 03:30', '2005-07-01 05:30', NULL, NULL, NULL, $112),
+(4, 4, 3, 2, 3, '2019-08-12 12:30', '2019-08-12 01:30', NULL, NULL, NULL, $51),
+(5, 5, 6, 1, 2, '2018-11-11 10:00', '2018-11-11 10:30', NULL, NULL, NULL, $5.10),
+(6, 1, 6, 6, 1, '2018-01-01 10:30', '2018-01-01 11:00', NULL, NULL, NULL, $10.20),
+(7, 4, 7, 7, 6, '2019-09-12 12:30', '2019-09-12 01:30', NULL, NULL, NULL, $86.40),
+(8, 7, 9, 8, 2, '2019-06-03 01:30', '2019-06-03 03:30', NULL, NULL, NULL, $70.80),
+(9, 10, 8, 10, 6, '2017-07-21 03:30', '2017-07-21 04:30', NULL, NULL, NULL, $79.20),
+(10, 6, 10, 3, 4, '2005-07-03 03:30', '2005-07-01 05:30', NULL, NULL, NULL, $31.20);
+
+
+
+INSERT INTO Avaliability VALUES
+--slotID, staffNo, appointmentNo, appointment time 
+(1, 1, 1, '2017-04-07 5:30' ),
+(2, 2, 2, '2019-06-03 01:30'),
+(3, 3, 3, '2005-07-03 03:30'),
+(4, 4, 4, '2019-08-12 12:30'),
+(5, 5, 5, '2018-11-11 10:00');
+
+INSERT INTO timeBased VALUES 
+(1, 40.00, 10.00), 
+(2, 30.00, 5.00), 
+(6, 60.00, 40.00); 
+
+INSERT INTO itemBased VALUES
+(3, 50.00, 15.00), 
+(4, 20.00, 30.00),
+(5, 35.00, 15.00);
+
+INSERT INTO StaffServices VALUES
+(2,3),
+(3,2),
+(5,4),
+(6,6),
+(7,5),
+(8,1),
+(9,2),
+(10,5);
+
+--queries for the DB 
+--query (A)
+
+SELECT SA.staffNo, SA.fName, SA.lName, SE.serviceID, SE.serviceName
+From Staff SA INNER JOIN staffServices SS ON (SA.staffNo = SS.staffNo), 
+     timeBased TB INNER JOIN Services SE ON (TB.ServiceID = SE.serviceID)
+WHERE (SA.expertiseLevel = 'time') AND (SS.service = SE.serviceID)
+ORDER BY SE.serviceName ASC; 
+
+
+--query (B)
+SELECT DISTINCT S.fName, S.lName  
+FROM Staff S INNER JOIN Appointments A ON (S.staffNo = A.therapist)
+WHERE CONVERT (varchar(10), checkinTime, 120) = '2019-09-12';
+
+--query (C)
+
+SELECT C.fName, C.lName, COUNT (A.appointmentNo) AS numOfAppointments
+FROM Client C, Appointments A
+WHERE (C.clientNo = A.clientNo)
+GROUP BY C.fName, C.lName;
+
+
+--query (D)
+SELECT S.fName, S.lName
+FROM staff S INNER JOIN staffServices SS ON (S.staffNo = SS.staffNo), 
+     Services S1 INNER JOIN staffServices ON (S1.serviceID = serviceID),
+	 timeBased TB INNER JOIN Services S2 ON (S2.serviceID = TB.serviceId)
+WHERE SS.staffNo IN ( SELECT MIN(hourlyRate) 
+                        FROM timeBased TB, Services S
+						WHERE (TB.ServiceID = S.serviceID) );
+
+--query (E)
+--will cause data inconsistency issues 
+UPDATE Avaliability 
+SET appointmentTime = '2018-11-11'
+WHERE appointmentTime = '2017-04-07'; 
+
+--will cause referential issues
+UPDATE Appointments
+SET therapist = 1
+WHERE therapist = 2;
+
+
+
+
+
+
+
